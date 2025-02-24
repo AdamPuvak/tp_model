@@ -51,6 +51,7 @@ def preprocess_tables(all_data):
                 if "userid" in df.columns:
                     df = df.drop(columns=["userid"])
 
+
             if table == "touch":
                 # deletes other columns (temporary)
                 df = df.drop(columns=["event_type_detail", "pointer_id", "raw_x", "raw_y", "touch_major", "touch_minor"])

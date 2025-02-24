@@ -27,7 +27,7 @@ def merge_files(directory):
 def edit():
     """ Funkcia, ktorá upraví poradie stĺpcov v 'merged_data.csv', upraví hodnoty v stĺpci 'orientation' a 'touch_event_type' """
     # Načítať existujúci merged_data.csv
-    merged_df = pd.read_csv("../merged_data.csv")
+    merged_df = pd.read_csv("merged_data.csv")
 
     # Požadované poradie stĺpcov
     desired_columns = [
