@@ -78,15 +78,25 @@ for _, row in df.iterrows():
                     direction = 8
 
         current_touch = {
-            "userid": row["userid"],
-            "timestamp": row["timestamp"],
-            "touch_event_type": row["touch_event_type"],
-            "touch_x": row["touch_x"],
-            "touch_y": row["touch_y"],
-            "direction": direction,
-            "angle": angle,
-            "TMS": TMS
-        }
+          "userid": row["userid"],
+          "timestamp": row["timestamp"],
+          "touch_event_type": row["touch_event_type"],
+          "touch_x": row["touch_x"],
+          "touch_y": row["touch_y"],
+          "touch_pressure": row["touch_pressure"],
+          "touch_size": row["touch_size"],
+          "accelerometer_x": row["accelerometer_x"],
+          "accelerometer_y": row["accelerometer_y"],
+          "accelerometer_z": row["accelerometer_z"],
+          "gyroscope_x": row["gyroscope_x"],
+          "gyroscope_y": row["gyroscope_y"],
+          "gyroscope_z": row["gyroscope_z"],
+          "direction": direction,
+          "angle": angle,
+          "TMS": TMS,
+          "curvature": np.nan
+      }
+
 
     processed_data.append(current_touch)
 
@@ -96,46 +106,48 @@ processed_df = pd.DataFrame(processed_data)
 def create_features(df):
     data = []
 
-    # pre kazdy pohyb daneho usera (pohyb od down po move)
     for _, group in df.groupby('userid'):
         movement_data = None
-        direction_data = {i: [] for i in range(1, 9)}
+        direction_data = {i: [] for i in range(1, 9)} 
+        length_data = {i: 0 for i in range(1, 9)}
+
+        prev_x, prev_y = None, None
 
         for _, row in group.iterrows():
             if row["touch_event_type"] == "down":
                 if movement_data is not None:
                     for direction in range(1, 9):
-                        if direction_data[direction]:
-                            movement_data[f"TMS_{direction}"] = np.mean(direction_data[direction])
-                        else:
-                            movement_data[f"TMS_{direction}"] = np.nan
+                        movement_data[f"ATMS_{direction}"] = round(np.mean(direction_data[direction]), 6) if direction_data[direction] else np.nan
+                    for direction in range(1, 9):
+                        movement_data[f"length_{direction}"] = round(length_data[direction], 6) if length_data[direction] > 0 else np.nan
+
                     data.append(movement_data)
 
-                movement_data = {
-                    "userid": row["userid"],
-                }
+                movement_data = {"userid": row["userid"]}
                 direction_data = {i: [] for i in range(1, 9)}
+                length_data = {i: 0 for i in range(1, 9)}
+                prev_x, prev_y = row["touch_x"], row["touch_y"]
 
             elif row["touch_event_type"] == "move" and movement_data:
-                direction_data[row["direction"]].append(row["TMS"])
+                direction = row["direction"]
+                if direction in range(1, 9):
+                    direction_data[direction].append(row["TMS"])
+
+                    if prev_x is not None and prev_y is not None:
+                        length_data[direction] += np.sqrt((row["touch_x"] - prev_x) ** 2 + (row["touch_y"] - prev_y) ** 2)
+
+                    prev_x, prev_y = row["touch_x"], row["touch_y"]
 
             elif row["touch_event_type"] == "up" and movement_data:
                 for direction in range(1, 9):
-                    if direction_data[direction]:
-                        movement_data[f"TMS_{direction}"] = np.mean(direction_data[direction])
-                    else:
-                        movement_data[f"TMS_{direction}"] = np.nan
+                    movement_data[f"ATMS_{direction}"] = round(np.mean(direction_data[direction]), 6) if direction_data[direction] else np.nan
+                for direction in range(1, 9):
+                    movement_data[f"length_{direction}"] = round(length_data[direction], 6) if length_data[direction] > 0 else np.nan
 
                 data.append(movement_data)
                 movement_data = None
 
-    result_df = pd.DataFrame(data)
-    result_df = result_df[["userid"] + [f"TMS_{i}" for i in range(1, 9)]]
-
-    #TODO tu sa bude pokracovat dalse features
-
-    return result_df
-
+    return pd.DataFrame(data)
 
 final_df = create_features(processed_df)
-final_df.to_csv("preprocessed_data.csv", index=False)
+final_df.to_csv("preprocessed_data.csv", index=False, header=True)
