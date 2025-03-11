@@ -85,7 +85,7 @@ def merge_data(processed_data):
     return merged_df
 
 # saves merged_df to CSV
-def save_to_csv(merged_df, filename="from_database.csv"):
+def save_to_csv(merged_df, filename="from_database_data.csv"):
     column_order = [
         "userid", "timestamp", "orientation", "touch_event_type", "touch_x", "touch_y", "touch_pressure", "touch_size",
         "accelerometer_x", "accelerometer_y", "accelerometer_z",

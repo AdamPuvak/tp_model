@@ -28,7 +28,6 @@ def calculate_tms(x1, y1, x2, y2, time1, time2):
     else:
         return np.nan
 
-
 processed_data = []
 current_touch = None
 
@@ -113,6 +112,7 @@ def create_features(df):
 
         prev_x, prev_y = None, None
 
+        # vytvara features z touch dat
         for _, row in group.iterrows():
             if row["touch_event_type"] == "down":
                 if movement_data is not None:
@@ -146,6 +146,9 @@ def create_features(df):
 
                 data.append(movement_data)
                 movement_data = None
+
+        #TODO tu pokracovat dalsie features
+        #TODO alebo ponechat vsetky stlpce v data a potom vytvorit novu funkciu
 
     return pd.DataFrame(data)
 
