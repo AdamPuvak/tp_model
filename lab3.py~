@@ -1,0 +1,186 @@
+import math
+import itertools
+
+def load_coordinates(filename):
+    with open(filename, "r") as f:
+        lines = f.readlines()
+
+    coords = {}
+    start = False
+    for line in lines:
+        if line.startswith("NODE_COORD_SECTION"):
+            start = True
+            continue
+        if line.startswith("EOF"):
+            break
+        if start:
+            parts = line.split()
+            coords[int(parts[0])] = (float(parts[1]), float(parts[2]))
+
+    return coords
+
+def count_distances(coords):
+    n = len(coords)
+    matrix = [[0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            if i != j:
+                matrix[i][j] = math.sqrt((coords[i+1][0] - coords[j+1][0]) ** 2 +
+                                         (coords[i+1][1] - coords[j+1][1]) ** 2)
+    return matrix
+
+coords = load_coordinates("ZSahara_29.txt")
+dist_matrix = count_distances(coords)
+
+def greedy_tsp(dist_matrix, start_city):
+    n = len(dist_matrix)
+
+    if start_city < 0 or start_city >= n:
+        print("Chyba: invalid city")
+        return
+
+    visited = [False] * n
+    path = [start_city]
+    visited[start_city] = True
+
+    for _ in range(n - 1):
+        last = path[-1]
+        next_city = min((dist_matrix[last][j], j) for j in range(n) if not visited[j])[1]
+        path.append(next_city)
+        visited[next_city] = True
+
+    path.append(start_city)
+    return path
+
+"""
+def count_distance(mask, curr, distances, memo):
+    n = len(distances)  # Počet miest (riadkov matice vzdialeností)
+
+    # Base case: if all cities are visited, return the cost to return to the starting city (0)
+    if mask == (1 << n) - 1:
+        return distances[curr][0]
+
+    # If the value has already been computed, return it from the memo table
+    if memo[curr][mask] != -1:
+        return memo[curr][mask]
+
+    ans = float('inf')
+
+    # Try visiting every city that has not been visited yet
+    for i in range(n):
+        if (mask & (1 << i)) == 0:  # If city i is not visited
+            ans = min(ans, distances[curr][i] + count_distance(mask | (1 << i), i, distances, memo))
+
+    # Memoize the result
+    memo[curr][mask] = ans
+    return ans
+
+
+# Main TSP function
+def dynamic_tsp(distances):
+    n = len(distances)  # Počet miest (riadkov matice vzdialeností)
+
+    # Initialize memoization table with -1 (indicating uncomputed states)
+    memo = [[-1] * (1 << n) for _ in range(n)]
+
+    # Start from city 0, with only city 0 visited initially (mask = 1)
+    return count_distance(1, 0, distances, memo)
+
+
+res = dynamic_tsp(dist_matrix)
+print(res)
+
+
+try:
+    start_city = int(input("start city (index): "))
+    #greedy_path = greedy_tsp(dist_matrix, start_city)
+    dynamic_path = dynamic_tsp(dist_matrix, start_city)
+    #if greedy_path:
+     #   print("Greedy path:", greedy_path)
+    if dynamic_path:
+        print("Dynamic path:", dynamic_path)
+except ValueError:
+    print("Error: invalid entry")
+"""
+
+
+# Python program to find the shortest possible route
+# that visits every city exactly once and returns to
+# the starting point using memoization and bitmasking
+
+def totalCost(mask, curr, n, cost, memo):
+    # Base case: if all cities are visited, return the
+    # cost to return to the starting city (0)
+    if mask == (1 << n) - 1:
+        return cost[curr][0]
+
+    # If the value has already been computed, return it
+    # from the memo table
+    if memo[curr][mask] != -1:
+        return memo[curr][mask]
+
+    ans = float('inf')
+
+    # Try visiting every city that has not been visited yet
+    for i in range(n):
+        if (mask & (1 << i)) == 0:
+            # If city i is not visited
+            # Visit city i and update the mask
+            ans = min(ans, cost[curr][i] +
+                      totalCost(mask | (1 << i), i, n, cost, memo))
+
+    # Memoize the result
+    memo[curr][mask] = ans
+    return ans
+
+def tsp(cost):
+    n = len(cost)
+
+    # Initialize memoization table with -1
+    # (indicating uncomputed states)
+    memo = [[-1] * (1 << n) for _ in range(n)]
+
+    # Start from city 0, with only city 0 visited initially (mask = 1)
+    return totalCost(1, 0, n, cost, memo)
+
+
+cost = [
+    [0, 10, 15, 20],
+    [10, 0, 35, 25],
+    [15, 35, 0, 30],
+    [20, 25, 30, 0]
+]
+
+"""
+import numpy as np
+dist_matrix = np.array(dist_matrix)
+dist_matrix = dist_matrix[:n, :n]
+#dist_matrix = np.round(dist_matrix).astype(int)
+
+#for row in dist_matrix:
+ #   print(" ".join([str(value) for value in row]))
+
+res = tsp(dist_matrix)
+print(res)
+"""
+
+import numpy as np
+import time
+
+# Predpokladáme, že dist_matrix je už definovaná
+dist_matrix = np.array(dist_matrix)
+
+for n in range(1, 30):  # Pre hodnoty n od 1 do 29
+    dist_matrix_n = dist_matrix[:n, :n]  # Zoberieme len prvých n riadkov a stĺpcov
+
+    # Môžeš odkomentovať a zaokrúhliť hodnoty podľa potreby
+    # dist_matrix_n = np.round(dist_matrix_n).astype(int)
+
+    start_time = time.time()  # Začíname časovač
+
+    res = tsp(dist_matrix_n)  # Spustíme TSP algoritmus
+
+    end_time = time.time()  # Konečný čas
+    duration = end_time - start_time  # Výpočet trvania
+
+    print(f"n = {n}, Result: {res}, Time taken: {duration:.4f} seconds")  # Vytlačíme výsledok a čas
