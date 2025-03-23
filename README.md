@@ -20,6 +20,6 @@ length - celková vzdialenosť tocuh pohybu (sucet vsetkych ciastkovych pohybov)
 accel_? - priemerne zrychlenie na osi "?"
     (? - oznacenie osi (x,y,z))
 
-total_accel - priemerne celkove zrychlenie na vsetkych troch osiach
+total_accel - priemerne celkove zrychlenie na vsetkych troch osiach (priemerna magnituda)
 
 ----------------------------------------
