@@ -112,6 +112,10 @@ def create_features(df):
         movement_data = None
         direction_data = {i: [] for i in range(1, 9)}
         length_data = {i: 0 for i in range(1, 9)}
+        acceleration_x = {i: [] for i in range(1, 9)}
+        acceleration_y = {i: [] for i in range(1, 9)}
+        acceleration_z = {i: [] for i in range(1, 9)}
+        total_acceleration = {i: [] for i in range(1, 9)}
 
         prev_x, prev_y = None, None
 
@@ -122,6 +126,10 @@ def create_features(df):
                 movement_data = {"userid": row["userid"]}
                 direction_data = {i: [] for i in range(1, 9)}
                 length_data = {i: 0 for i in range(1, 9)}
+                acceleration_x = {i: [] for i in range(1, 9)}
+                acceleration_y = {i: [] for i in range(1, 9)}
+                acceleration_z = {i: [] for i in range(1, 9)}
+                total_acceleration = {i: [] for i in range(1, 9)}
                 prev_x, prev_y = row["touch_x"], row["touch_y"]
 
             # priebeh pohybu
@@ -131,21 +139,52 @@ def create_features(df):
                     direction_data[direction].append(row["TMS"])
 
                     if prev_x is not None and prev_y is not None:
-                        length_data[direction] += np.sqrt((row["touch_x"] - prev_x) ** 2 + (row["touch_y"] - prev_y) ** 2)
+                        length_data[direction] += np.sqrt(
+                            (row["touch_x"] - prev_x) ** 2 + (row["touch_y"] - prev_y) ** 2)
+
+                    acceleration_x[direction].append(row["accelerometer_x"])
+                    acceleration_y[direction].append(row["accelerometer_y"])
+                    acceleration_z[direction].append(row["accelerometer_z"])
+
+                    total_acceleration[direction].append(np.sqrt(row["accelerometer_x"] ** 2 + row["accelerometer_y"] ** 2 + row["accelerometer_z"] ** 2))
 
                     prev_x, prev_y = row["touch_x"], row["touch_y"]
 
             # koniec pohybu
             elif row["touch_event_type"] == "up" and movement_data:
                 for direction in range(1, 9):
-                    movement_data[f"ATMS_{direction}"] = round(np.mean(direction_data[direction]), 6) if direction_data[direction] else np.nan
+                    movement_data[f"ATMS_{direction}"] = round(np.mean(direction_data[direction]), 6) if direction_data[
+                        direction] else np.nan
+
                 for direction in range(1, 9):
                     movement_data[f"length_{direction}"] = round(length_data[direction], 6) if length_data[direction] > 0 else np.nan
+
+                for direction in range(1, 9):
+                    movement_data[f"accel_x_{direction}"] = round(np.mean(acceleration_x[direction]), 6) if \
+                    acceleration_x[direction] else np.nan
+                    movement_data[f"accel_y_{direction}"] = round(np.mean(acceleration_y[direction]), 6) if \
+                    acceleration_y[direction] else np.nan
+                    movement_data[f"accel_z_{direction}"] = round(np.mean(acceleration_z[direction]), 6) if \
+                    acceleration_z[direction] else np.nan
+
+                for direction in range(1, 9):
+                    movement_data[f"total_accel_{direction}"] = round(np.mean(total_acceleration[direction]), 6) if \
+                    total_acceleration[direction] else np.nan
 
                 data.append(movement_data)
                 movement_data = None
 
-    return pd.DataFrame(data)
+    df_out = pd.DataFrame(data)
+    columns_order = ["userid"] + \
+                    [f"ATMS_{i}" for i in range(1, 9)] + \
+                    [f"length_{i}" for i in range(1, 9)] + \
+                    [f"accel_x_{i}" for i in range(1, 9)] + \
+                    [f"accel_y_{i}" for i in range(1, 9)] + \
+                    [f"accel_z_{i}" for i in range(1, 9)] + \
+                    [f"total_accel_{i}" for i in range(1, 9)]
+
+    return df_out[columns_order]
+
 
 final_df = create_features(processed_df)
 final_df.to_csv("preprocessed_data.csv", index=False, header=True)
