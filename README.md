@@ -15,6 +15,10 @@ Vysvetlenie features:
 
 ATMS - priemerna rychlost touch pohybu (priemer vsetkych TMS)
 
+max_TMS - maximalna rychlost touch pohybu 
+
+min_TMS - maximalna rychlost touch pohybu 
+
 length - celková vzdialenosť tocuh pohybu (sucet vsetkych ciastkovych pohybov)
 
 accel_? - priemerne zrychlenie na osi "?"

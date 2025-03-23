@@ -167,6 +167,8 @@ def create_features(df):
             elif row["touch_event_type"] == "up" and movement_data:
                 for direction in range(1, 9):
                     movement_data[f"ATMS_{direction}"] = round(np.mean(direction_data[direction]), 6) if direction_data[direction] else np.nan
+                    movement_data[f"max_TMS_{direction}"] = round(np.max(direction_data[direction]), 6) if direction_data[direction] else np.nan
+                    movement_data[f"min_TMS_{direction}"] = round(np.min(direction_data[direction]), 6) if direction_data[direction] else np.nan
 
                     movement_data[f"length_{direction}"] = round(length_data[direction], 6) if length_data[direction] > 0 else np.nan
 
@@ -198,6 +200,8 @@ def create_features(df):
     df_out = pd.DataFrame(data)
     columns_order = ["userid"] + \
                     [f"ATMS_{i}" for i in range(1, 9)] + \
+                    [f"max_TMS_{i}" for i in range(1, 9)] + \
+                    [f"min_TMS_{i}" for i in range(1, 9)] + \
                     [f"length_{i}" for i in range(1, 9)] + \
                     [f"accel_x_{i}" for i in range(1, 9)] + \
                     [f"accel_y_{i}" for i in range(1, 9)] + \
