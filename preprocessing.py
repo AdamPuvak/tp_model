@@ -31,6 +31,7 @@ def calculate_tms(x1, y1, x2, y2, time1, time2):
 processed_data = []
 current_touch = None
 
+# priprava na predspracovanie (vypocet angle, direction, TMS)
 for _, row in df.iterrows():
     if row['touch_event_type'] == 'down':
         current_touch = {
@@ -40,7 +41,9 @@ for _, row in df.iterrows():
             "touch_x": row["touch_x"],
             "touch_y": row["touch_y"],
             "direction": np.nan,
-            "angle": np.nan
+            "angle": np.nan,
+            "touch_pressure": row["touch_pressure"],
+            "touch_size": row["touch_size"]
         }
     elif row['touch_event_type'] in ['move', 'up'] and current_touch:
         # Zistíme, či sa pozícia zmenila
@@ -93,41 +96,35 @@ for _, row in df.iterrows():
           "direction": direction,
           "angle": angle,
           "TMS": TMS,
-          "curvature": np.nan
       }
 
-
     processed_data.append(current_touch)
+
 
 processed_df = pd.DataFrame(processed_data)
 #processed_df.to_csv("temp.csv", index=False)
 
+
 def create_features(df):
     data = []
 
-    for _, group in df.groupby('userid'):
+    for _, user_data in df.groupby('userid'):
         movement_data = None
-        direction_data = {i: [] for i in range(1, 9)} 
+        direction_data = {i: [] for i in range(1, 9)}
         length_data = {i: 0 for i in range(1, 9)}
 
         prev_x, prev_y = None, None
 
-        # vytvara features z touch dat
-        for _, row in group.iterrows():
+        # vytvaranie features
+        for _, row in user_data.iterrows():
+            # zaciatok pohybu
             if row["touch_event_type"] == "down":
-                if movement_data is not None:
-                    for direction in range(1, 9):
-                        movement_data[f"ATMS_{direction}"] = round(np.mean(direction_data[direction]), 6) if direction_data[direction] else np.nan
-                    for direction in range(1, 9):
-                        movement_data[f"length_{direction}"] = round(length_data[direction], 6) if length_data[direction] > 0 else np.nan
-
-                    data.append(movement_data)
-
                 movement_data = {"userid": row["userid"]}
                 direction_data = {i: [] for i in range(1, 9)}
                 length_data = {i: 0 for i in range(1, 9)}
                 prev_x, prev_y = row["touch_x"], row["touch_y"]
 
+            # priebeh pohybu
             elif row["touch_event_type"] == "move" and movement_data:
                 direction = row["direction"]
                 if direction in range(1, 9):
@@ -138,6 +135,7 @@ def create_features(df):
 
                     prev_x, prev_y = row["touch_x"], row["touch_y"]
 
+            # koniec pohybu
             elif row["touch_event_type"] == "up" and movement_data:
                 for direction in range(1, 9):
                     movement_data[f"ATMS_{direction}"] = round(np.mean(direction_data[direction]), 6) if direction_data[direction] else np.nan
@@ -146,9 +144,6 @@ def create_features(df):
 
                 data.append(movement_data)
                 movement_data = None
-
-        #TODO tu pokracovat dalsie features
-        #TODO alebo ponechat vsetky stlpce v data a potom vytvorit novu funkciu
 
     return pd.DataFrame(data)
 

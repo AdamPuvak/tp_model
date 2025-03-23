@@ -1,5 +1,10 @@
-GET z databazy -> from_database.csv
+Vysvetlenie jednotlivych suborov:
+----------------------------------------
 
-sample_data.csv -> manualne vytvorene pripravene na predspracovanie (-> preprocessing.pt)
+from_database.csv - data ziskane z databazy
 
-preprocessed_data.csv -> predspracovane v preprocessing.py 
+sample_data.csv - manualne vytvorene data pripravene na predspracovanie (-> preprocessing.py)
+
+preprocessed_data.csv - predspracovane data (vystup z preprocessing.py)
+
+----------------------------------------
