@@ -84,6 +84,20 @@ def merge_data(processed_data):
 
     return merged_df
 
+def fill_missing_touch_data(df):
+    touch_columns = ['touch_event_type', 'touch_x', 'touch_y', 'touch_pressure', 'touch_size']
+    
+    for col in touch_columns:
+        if col in df.columns:
+            last_valid_value = None
+            
+            for i in range(len(df)):
+                if pd.notna(df.at[i, col]):
+                    last_valid_value = df.at[i, col]
+                elif last_valid_value is not None:
+                    df.at[i, col] = last_valid_value
+    return df
+
 # saves merged_df to CSV
 def save_to_csv(merged_df, filename="from_database_data.csv"):
     column_order = [
@@ -102,3 +116,6 @@ if __name__ == "__main__":
     processed_data = preprocess_tables(all_data)
     merged_df = merge_data(processed_data)
     save_to_csv(merged_df)
+
+    merged_df = fill_missing_touch_data(merged_df)
+    save_to_csv(merged_df, "from_database_data_filled.csv")
