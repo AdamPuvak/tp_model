@@ -33,30 +33,33 @@ def preprocess_tables(all_data):
         if data:
             df = pd.DataFrame(data)
 
-            # deletes column "input"
+            # Deletes column "input"
             if "input" in df.columns:
                 df = df.drop(columns=["input"])
 
+            # Keeps vzor_id if exists
+            if "vzor_id" in df.columns:
+                df["vzor_id"] = df["vzor_id"]
+            
             if table in ["accelerometer", "gyroscope"]:
-                # deletes column "userid"
+                # Deletes column "userid"
                 if "userid" in df.columns:
                     df = df.drop(columns=["userid"])
 
-                # renames axes columns
+                # Renames axes columns
                 rename_dict = {col: f"{table}_{col}" for col in ["x", "y", "z"] if col in df.columns}
                 df = df.rename(columns=rename_dict)
 
             if table == "orientation":
-                # deletes column "userid"
+                # Deletes column "userid"
                 if "userid" in df.columns:
                     df = df.drop(columns=["userid"])
 
-
             if table == "touch":
-                # deletes other columns (temporary)
-                df = df.drop(columns=["event_type_detail", "pointer_id", "raw_x", "raw_y", "touch_major", "touch_minor"])
+                # Deletes other columns (temporary)
+                df = df.drop(columns=["event_type_detail", "pointer_id", "raw_x", "raw_y", "touch_major", "touch_minor"], errors='ignore')
 
-                # renames touch-related columns
+                # Renames touch-related columns
                 rename_dict = {col: f"{table}_{col}" for col in ["event_type", "x", "y", "pressure", "size"] if col in df.columns}
                 df = df.rename(columns=rename_dict)
 
@@ -80,20 +83,20 @@ def merge_data(processed_data):
         if merged_df is None:
             merged_df = df
         else:
-            merged_df = pd.merge(merged_df, df, on="timestamp", how="outer")
+            # Specify suffixes to avoid duplicate column names
+            merged_df = pd.merge(merged_df, df, on=["timestamp", "vzor_id"], how="outer", suffixes=('', f'_{table}'))
 
     return merged_df
 
 # saves merged_df to CSV
 def save_to_csv(merged_df, filename="from_database_data.csv"):
     column_order = [
-        "userid", "timestamp", "orientation", "touch_event_type", "touch_x", "touch_y", "touch_pressure", "touch_size",
+        "userid", "vzor_id", "timestamp", "orientation", "touch_event_type", "touch_x", "touch_y", "touch_pressure", "touch_size",
         "accelerometer_x", "accelerometer_y", "accelerometer_z",
         "gyroscope_x", "gyroscope_y", "gyroscope_z"
     ]
 
     merged_df = merged_df[[col for col in column_order if col in merged_df.columns]]
-
     merged_df.to_csv(filename, index=False)
 
 # only runs in this file
