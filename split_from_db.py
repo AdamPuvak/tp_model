@@ -107,3 +107,33 @@ for vzor_id in ['1', '2', '3']:
     #if want another file name uncomment this line and comment above
     #output_filename = f'vzor_{vzor_id}_processed.csv'
     process_csv(input_filename, output_filename)
+
+def merge_csv_files(output_files, merged_filename):
+    merged_rows = []
+    header_written = False
+
+    with open(merged_filename, 'w', newline='') as merged_file:
+        writer = csv.writer(merged_file)
+
+        for vzor_id, filename in output_files.items():
+            with open(filename, 'r') as infile:
+                reader = csv.reader(infile)
+                header = next(reader)
+
+                # Zapísať hlavičku iba raz
+                if not header_written:
+                    writer.writerow(header)
+                    header_written = True
+
+                # Pridať riadky zo súboru
+                for row in reader:
+                    merged_rows.append(row)
+
+        # Zapísať všetky riadky do zlúčeného súboru
+        writer.writerows(merged_rows)
+
+# Názov výsledného zlúčeného súboru
+merged_filename = 'merged_vzor.csv'
+
+# Zlúčenie súborov
+merge_csv_files(output_files, merged_filename)
