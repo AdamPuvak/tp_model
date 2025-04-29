@@ -4,7 +4,9 @@ import numpy as np
 import math
 
 # vstupy
-input_file = "vzor_1.csv"
+#input_file = "vzor_1.csv"
+#input_file = "vzor_2.csv"
+input_file = "vzor_3.csv"
 output_file = "preprocessed_data.csv"
 df = pd.read_csv(input_file)
 
@@ -228,4 +230,6 @@ def create_features(df):
 
 
 final_df = create_features(processed_df)
-final_df.to_csv("preprocessed_data.csv", index=False, header=True)
+#final_df.to_csv("preprocessed_data_vzor1.csv", index=False, header=True)
+#final_df.to_csv("preprocessed_data_vzor2.csv", index=False, header=True)
+final_df.to_csv("preprocessed_data_vzor3.csv", index=False, header=True)

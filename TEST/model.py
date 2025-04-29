@@ -15,7 +15,11 @@ from scipy.stats import randint, uniform
 
 # 1. Načítanie dát
 print("⏳ Načítavam dáta...")
-data = pd.read_csv("preprocessed_data.csv").drop_duplicates()
+#ZMENIT
+#data = pd.read_csv("preprocessed_data.csv").drop_duplicates()
+#data = pd.read_csv("preprocessed_data_vzor1.csv").drop_duplicates()
+#data = pd.read_csv("preprocessed_data_vzor2.csv").drop_duplicates()
+data = pd.read_csv("preprocessed_data_vzor3.csv").drop_duplicates()
 
 # 2. Kódovanie používateľov
 print("🔢 Label encoding...")
@@ -119,8 +123,15 @@ joblib.dump({
         'roc_auc': roc_auc_score(y_test, y_proba, multi_class='ovr'),
         'training_time': (time.time()-start_time)/60
     }
-}, "optimized_xgb_model.pkl")
-print("✅ Model uložený ako 'optimized_xgb_model.pkl'")
+}, "optimized_xgb_model_vzor3.pkl")
+
+#ZMENIT toto nad tym na:
+#optimized_xgb_model_all.pkl
+#optimized_xgb_model_vzor1.pkl
+#optimized_xgb_model_vzor2.pkl
+#optimized_xgb_model_vzor3.pkl
+
+print("✅ Model uložený ako 'optimized_xgb_model_all.pkl'")
 
 # 12. Vylepšená autentifikačná funkcia
 def authenticate(sample, threshold=0.85, fallback_threshold=0.5):
