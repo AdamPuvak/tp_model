@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 # endpoint
-BASE_URL = "https://biopassword.jecool.net/db/getTable.php?table="
+BASE_URL = "http://localhost/db/getTable.php?table="
 
 # gets single table
 def get_data(table_name):
