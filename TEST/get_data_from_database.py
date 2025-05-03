@@ -42,18 +42,13 @@ def preprocess_tables(all_data):
                 df["vzor_id"] = df["vzor_id"]
             
             if table in ["accelerometer", "gyroscope"]:
-                # Deletes column "userid"
-                if "userid" in df.columns:
-                    df = df.drop(columns=["userid"])
-
                 # Renames axes columns
                 rename_dict = {col: f"{table}_{col}" for col in ["x", "y", "z"] if col in df.columns}
                 df = df.rename(columns=rename_dict)
 
             if table == "orientation":
-                # Deletes column "userid"
-                if "userid" in df.columns:
-                    df = df.drop(columns=["userid"])
+                # No special processing needed beyond what's common
+                pass
 
             if table == "touch":
                 # Deletes other columns (temporary)
@@ -84,7 +79,7 @@ def merge_data(processed_data):
             merged_df = df
         else:
             # Specify suffixes to avoid duplicate column names
-            merged_df = pd.merge(merged_df, df, on=["timestamp", "vzor_id"], how="outer", suffixes=('', f'_{table}'))
+            merged_df = pd.merge(merged_df, df, on=["timestamp", "vzor_id", "userid"], how="outer", suffixes=('', f'_{table}'))
 
     return merged_df
 

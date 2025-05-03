@@ -1,41 +1,17 @@
-Vysvetlenie jednotlivych suborov:
-----------------------------------------
+#TEST PRIECINOK
+1. Spust get_data_from_database.py
+2. Spust split_from_db.py
+3. Spust preprocessing.py - pozor cd TEST v terminali, nahrad aj nazvy podla toho ktore data chces
+4. merge_data_vzors.py ich mergne dokopy 
 
-from_database.csv - data ziskane z databazy
+5. modelIsUserOwnerOfData.py overuje ci sa jedna o daneho pouzivatela resp. patria tieto data tomu uzivatelovi ? true / false 
 
-sample_data.csv - manualne vytvorene data pripravene na predspracovanie (-> preprocessing.py)
+vyhladaj #ZMENIT v model.py tam vies menit vstupne udaje (POZOR 2x aj vstup aj vystup model nazov)
 
-preprocessed_data.csv - predspracovane data (vystup z preprocessing.py)
+v ./ folderi je optimized_xgb_model.pkl (2min trening) to je z model.py (potom je este jeden model v old.py, rychle trenovanie s rovnakou uspesnostou)
 
-----------------------------------------
+#PROD PRIECINOK
+Obsahuje preprocessed data v stave OK 
 
-
-Vysvetlenie features:
-----------------------------------------
-
-ATMS - priemerna rychlost touch pohybu (priemer vsetkych TMS)
-
-max_TMS - maximalna rychlost touch pohybu 
-
-min_TMS - maximalna rychlost touch pohybu 
-
-length - celková vzdialenosť tocuh pohybu (sucet vsetkych ciastkovych pohybov)
-
-accel_? - priemerne zrychlenie na osi "?"
-    (? - oznacenie osi (x,y,z))
-
-max_accel_? - maximalne zrychlenie v jednom tiku na osi "?"
-
-min_accel_? - minimalne zrychlenie v jednom tiku na osi "?"
-
-total_accel - priemerne celkove zrychlenie na vsetkych troch osiach (priemerna magnituda)
-
-gyro_? - priemerne naklonenie na osi "?"
-
-max_gyrol_? - maximalne naklonenie v jednom tiku na osi "?"
-
-min_gyro_? - minimalne naklonenie v jednom tiku na osi "?"
-
-total_gyro - priemerne celkove naklonenie na vsetkych troch osiach (priemerna magnituda)
-
-----------------------------------------
+#EXPERIMENTY
+Podpriecinok pre nase experimenty
